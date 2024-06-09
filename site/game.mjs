@@ -51,7 +51,7 @@ export default class GameEngine {
         const ctx = this.context
         const w = this.canvas.width
         const h = this.canvas.height
-        ctx.fillStyle = "#688d41";
+        ctx.fillStyle = "#688d41"; // grid color #5e8138
         ctx.clearRect(0, 0, w, h);
         ctx.fillRect(0, 0, w, h)
     }

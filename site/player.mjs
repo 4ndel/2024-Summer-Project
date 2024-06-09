@@ -24,22 +24,33 @@ export default class Player {
     }
 
     move() {
+        xdiff = 0
+        ydiff = 0
         for (const key of this.keys) {
             switch (key) {
                 case 'a':
-                    this.x -= this.speed;
+                    xdiff -= 1
                     break;
                 case 'd':
-                    this.x += this.speed;
+                    xdiff += 1
                     break;
                 case 'w':
-                    this.y -= this.speed;
+                    ydiff -= 1
                     break;
                 case 's':
-                    this.y += this.speed;
+                    ydiff += 1
                     break;
             }
         }
+        
+        if (xdiff != 0 && ydiff != 0) {
+            this.x += this.speed /2
+            this.y += this.speed /2
+        } else {
+            this.x += this.speed * xdiff
+            this.y += this.speed * ydiff
+        }
+
     }
 
     listenToKeys() {
