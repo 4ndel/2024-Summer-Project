@@ -2,7 +2,7 @@ export default class Player {
     x = 0
     y = 0
     speed = 5
-    imgSrc = "player.png"
+    imgSrc = "assets/player.png"
     img
     keys = new Set()
 
@@ -24,8 +24,8 @@ export default class Player {
     }
 
     move() {
-        xdiff = 0
-        ydiff = 0
+        let xdiff = 0
+        let ydiff = 0
         for (const key of this.keys) {
             switch (key) {
                 case 'a':
@@ -44,12 +44,13 @@ export default class Player {
         }
         
         if (xdiff != 0 && ydiff != 0) {
-            this.x += this.speed /2
-            this.y += this.speed /2
-        } else {
-            this.x += this.speed * xdiff
-            this.y += this.speed * ydiff
+            xdiff /= Math.sqrt(2)
+            ydiff /=  Math.sqrt(2)
         }
+
+        this.x += this.speed * xdiff
+        this.y += this.speed * ydiff
+        
 
     }
 
