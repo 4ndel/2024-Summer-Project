@@ -2,9 +2,10 @@ import Entity from "./entity.mjs";
 import Player from "./player.mjs"
 
 const defaultConfiguration = {
-    width: 1000,
-    height: 1000,
-    treeDensity: 0.001
+    width: 20000,
+    height: 10000,
+    treeDensity: 10,
+    stoneDensity: 10
 }
 
 export default class World {
@@ -16,14 +17,22 @@ export default class World {
     generateWorld({width, height, treeDensity, stoneDensity} = defaultConfiguration) {
         this.width = width;
         this.height = height;
-        var img = new Image();
-        img.src = "assets/tree.png";
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < height; j++) {
                 const flip = Math.random()
-                if (flip < treeDensity) {
+                if (flip < treeDensity/15000000) {
                     const tree = this.#createTree(i, j)
                     this.entities.push(tree)
+                }
+            }
+        }
+
+        for (let i = 0; i < width; i++) {
+            for (let j = 0; j < height; j++) {
+                const flip = Math.random()
+                if (flip < stoneDensity/15000000) {
+                    const stone = this.#createStone(i, j)
+                    this.entities.push(stone)
                 }
             }
         }
@@ -42,9 +51,16 @@ export default class World {
     }
 
     #createTree(x, y) {
-        console.log('creating tree')
-        const tree = new Entity("assets/tree.png", 50, 50);
+        console.log('tree')
+        const tree = new Entity("assets/tree.png", 300, 300);
         tree.move(x, y)
         return tree;
+    }
+
+    #createStone(x, y) {
+        console.log('stone')
+        const stone = new Entity("assets/stone.png", 200, 200);
+        stone.move(x, y)
+        return stone;
     }
 }

@@ -1,6 +1,8 @@
 export default class Player {
     x = 0
     y = 0
+    width = 175
+    height = 150
     speed = 5
     imgSrc = "assets/player.png"
     img
