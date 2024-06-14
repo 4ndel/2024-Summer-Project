@@ -1,5 +1,7 @@
+import Controls from "./components/controls.mjs";
+import ImageDrawable from "./components/imageDrawable.mjs";
+import Position from "./components/position.mjs";
 import Entity from "./entity.mjs";
-import Player from "./player.mjs"
 
 const defaultConfiguration = {
     width: 20000,
@@ -9,7 +11,7 @@ const defaultConfiguration = {
 }
 
 export default class World {
-    player = new Player()
+    player = this.#createPlayer()
     entities = []
     width;
     height;
@@ -20,7 +22,7 @@ export default class World {
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < height; j++) {
                 const flip = Math.random()
-                if (flip < treeDensity/15000000) {
+                if (flip < treeDensity/45000000) {
                     const tree = this.#createTree(i, j)
                     this.entities.push(tree)
                 }
@@ -30,7 +32,7 @@ export default class World {
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < height; j++) {
                 const flip = Math.random()
-                if (flip < stoneDensity/15000000) {
+                if (flip < stoneDensity/45000000) {
                     const stone = this.#createStone(i, j)
                     this.entities.push(stone)
                 }
@@ -42,25 +44,35 @@ export default class World {
         return this.entities.filter(({anchored}) => (!anchored))
     }
 
-    getWithinBounds(x, y, width, height) {
-        return this.entities.filter(entity => {
-            // TODO return if this entity dimensions collide with the bounds
-            entity.x, entity.y, entity.width, entity.height
-            return true
-        });
+    #createPlayer() {
+        const player = new Entity({
+            pos: new Position(170, 150),
+            drawable: new ImageDrawable("assets/player.png"),
+            controls: new Controls()
+        })
+        player.drawable.load();
+        return player;
     }
 
     #createTree(x, y) {
         console.log('tree')
-        const tree = new Entity("assets/tree.png", 300, 300);
-        tree.move(x, y)
+        const tree = new Entity({
+            pos: new Position(300, 300),
+            drawable: new ImageDrawable("assets/tree.png")
+        });
+        tree.pos.move(x, y);
+        tree.drawable.load()
         return tree;
     }
 
     #createStone(x, y) {
         console.log('stone')
-        const stone = new Entity("assets/stone.png", 200, 200);
-        stone.move(x, y)
+        const stone = new Entity({
+            pos: new Position(200, 200),
+            drawable: new ImageDrawable("assets/stone.png")
+        });
+        stone.pos.move(x, y)
+        stone.drawable.load()
         return stone;
     }
 }

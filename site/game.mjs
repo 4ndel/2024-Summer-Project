@@ -4,6 +4,8 @@ export default class GameEngine {
     canvas;
     context;
     world = new World()
+    mouseX
+    mouseY
 
     async init() {
         const body = document.body
@@ -15,8 +17,7 @@ export default class GameEngine {
 
         const { player } = this.world
         this.world.generateWorld();
-        await player.loadImage()
-        player.listenToKeys()
+        player.controls.listen();
     }
 
     start() {
@@ -35,7 +36,7 @@ export default class GameEngine {
 
     moveEntities() {
         const { player } = this.world
-        player.move()
+        player.controls.update()
 
         for (entity of this.world.getMovableEntities()) {
             // TODO move them I guess
@@ -44,36 +45,35 @@ export default class GameEngine {
 
     drawEntities() {
         const { player } = this.world
+        const center = {...player.pos, x: this.canvas.width / 2, y: this.canvas.height / 2}
 
         for (const entity of this.world.entities) {
-            this.drawEntity(entity)
+            const x = entity.pos.x + player.pos.x;
+            const y = entity.pos.y + player.pos.y;
+            const pos = {...entity.pos, x, y}
+            entity?.drawable?.draw?.(this.context, pos)
         }
 
-        this.drawEntity(player)
+        console.log(center)
+        player?.drawable?.draw?.(this.context, center)
     }
 
-    drawGrid(w, h){
+    drawGrid(w, h) {
+        const moveX = 0;
+        const moveY = 0
         this.context.lineWidth = 5;
         this.context.strokeStyle = "#5e8138";
         for(let i = 0; i<h/70; i++){
             this.context.beginPath();
-            this.context.moveTo(0, i*70);
-            this.context.lineTo(w, i*70);
+            this.context.moveTo(0 + moveX, i*70 + moveY);
+            this.context.lineTo(w + moveX, i*70 + moveY);
             this.context.stroke();
         }
         for(let i = 0; i<w/70; i++){
             this.context.beginPath();
-            this.context.moveTo(i*70, 0);
-            this.context.lineTo(i*70, h);
+            this.context.moveTo(i*70 + moveX, 0 + moveY);
+            this.context.lineTo(i*70 + moveX, h + moveY);
             this.context.stroke();
-        }
-    }
-
-    drawEntity(entity) {
-        const { x, y, width, height } = entity
-        const img = entity?.getImage()
-        if (img) {
-            this.context.drawImage(img, x, y, width, height);
         }
     }
 
@@ -84,7 +84,7 @@ export default class GameEngine {
         ctx.fillStyle = "#688d41";
         ctx.clearRect(0, 0, w, h);
         ctx.fillRect(0, 0, w, h);
-        this.drawGrid(w, h);
+        this.drawGrid(w*100, h*100);
     }
 }
 
