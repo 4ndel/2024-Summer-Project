@@ -2,13 +2,14 @@ export default class Controls {
     keys = new Set()
     mousePos
 
-    update() {
-        const pos = this.parent.pos
-        const {xdiff, ydiff} = this.#calculateMovement()
-        const angle = this.#calculateAngle()
-        
-        pos.moveDiff(xdiff, ydiff);
-        pos.rotate(angle)
+    /**
+     * @returns {xdiff, ydiff, angle} get the current directional movement and mouse angle
+     */
+    getMovement() {
+        return {
+            ... this.#calculateMovement(),
+            angle: this.#calculateAngle() 
+        }
     }
 
     listen() {
@@ -32,16 +33,16 @@ export default class Controls {
         for (const key of this.keys) {
             switch (key) {
                 case 'a':
-                    xdiff += 1
-                    break;
-                case 'd':
                     xdiff -= 1
                     break;
+                case 'd':
+                    xdiff += 1
+                    break;
                 case 'w':
-                    ydiff += 1
+                    ydiff -= 1
                     break;
                 case 's':
-                    ydiff -= 1
+                    ydiff += 1
                     break;
             }
         }
@@ -58,7 +59,7 @@ export default class Controls {
         const mouseX = x - screen.width/2
         const mouseY = y - screen.height/2
         const mouseAngle = Math.atan(mouseY / mouseX)
-        console.log(mouseX + " " + mouseY + " " + mouseAngle * (180/Math.PI))
+        // console.log(mouseX + " " + mouseY + " " + mouseAngle * (180/Math.PI))
         return mouseAngle
     }
 }

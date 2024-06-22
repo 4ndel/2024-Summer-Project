@@ -7,6 +7,11 @@ export default class ImageDrawable {
         this.imgSrc = src
     }
 
+    /**
+     * Draw this component to the context
+     * @param {} context 
+     * @param {*} dimensions 
+     */
     draw(context, {x, y, width, height, angle}) {
         if (!this.parent) return;
         const img = this.getImage();

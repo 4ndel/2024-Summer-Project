@@ -17,6 +17,11 @@ export default class GameEngine {
 
         const { player } = this.world
         this.world.generateWorld();
+
+        await player?.drawable?.load()
+        for (const entity of this.world.entities) {
+            const promise  = entity?.drawable?.load()
+        }
         player.controls.listen();
     }
 
@@ -35,12 +40,27 @@ export default class GameEngine {
     }
 
     moveEntities() {
-        const { player } = this.world
-        player.controls.update()
+        const player = this.world.player
+        const speed = player.pos.speed
+        const movement = player.controls.getMovement();
+        const xdiff = movement.xdiff * speed;
+        const ydiff = movement.ydiff * speed;
+        const nextPos = player.pos.newPos(xdiff, ydiff);
 
-        for (entity of this.world.getMovableEntities()) {
-            // TODO move them I guess
+        const collided = this.checkEntityCollision(nextPos)
+
+        if (collided.length > 0) {
+            // these are entities that collided
+            for (const entity of collided) {
+                console.log(`oh no collision at ${entity.pos}`)
+            }   
         }
+
+        player.pos.move(nextPos.x, nextPos.y)
+    }
+
+    checkEntityCollision(pos) {
+        return this.world.entities.filter(entity => entity.pos.checkCollision(pos))
     }
 
     drawEntities() {
@@ -48,13 +68,12 @@ export default class GameEngine {
         const center = {...player.pos, x: this.canvas.width / 2, y: this.canvas.height / 2}
 
         for (const entity of this.world.entities) {
-            const x = entity.pos.x + player.pos.x;
-            const y = entity.pos.y + player.pos.y;
+            const x = entity.pos.x - player.pos.x;
+            const y = entity.pos.y - player.pos.y;
             const pos = {...entity.pos, x, y}
             entity?.drawable?.draw?.(this.context, pos)
         }
 
-        console.log(center)
         player?.drawable?.draw?.(this.context, center)
     }
 
@@ -78,13 +97,17 @@ export default class GameEngine {
     }
 
     drawBackground() {
+        const {player} = this.world
         const ctx = this.context
         const w = this.canvas.width
         const h = this.canvas.height
+        ctx.save()
+        ctx.translate(player.pos.x % 70, player.pos.y % 70)
         ctx.fillStyle = "#688d41";
         ctx.clearRect(0, 0, w, h);
         ctx.fillRect(0, 0, w, h);
         this.drawGrid(w*100, h*100);
+        ctx.restore()
     }
 }
 

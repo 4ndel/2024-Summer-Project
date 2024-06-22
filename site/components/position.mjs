@@ -17,25 +17,34 @@ export default class Position {
         this.y = y;
     }
 
-    moveDiff(xdiff, ydiff) {
+    /**
+     * Move this component by xdiff and ydiff
+     * 
+     * @param {number} xdiff amount to move this position in the x direction
+     * @param {number} ydiff amount to move this position in the y direction
+     * @returns {Rect} the new collision box after the movement
+     */
+    newPos(xdiff, ydiff) {
         const x = this.x + xdiff * this.speed
         const y = this.y + ydiff * this.speed
-        this.move(x, y);
+        return {x, y, width: this.width, height: this.height}
     }
 
     rotate(value) {
         this.angle = value;
     }
 
+    /**
+     * @param {Rect} rectangle 
+     * @returns if the rectangle collides with this object
+     */
     checkCollision({x, y, width, height}) {
-        // TODO improve collision detection
-        const maxx = x + width;
-        const maxy = y + height;
-        if (this.x >= x && this.x <= maxx) {
-            if (this.y >= y && this.y <= maxy) {
-                return true;
-            }
-        }
-        return false;
+        const right = this.x + this.width;
+        const bottom = this.y + this.height;
+        // if (RectA.Left < RectB.Right && RectA.Right > RectB.Left &&
+        // RectA.Top > RectB.Bottom && RectA.Bottom < RectB.Top ) 
+        const withinHorizontal = this.x < x + width && right > x;
+        const withinVertical = this.y > y + height && bottom < y;
+        return withinHorizontal && withinVertical
     }
 }

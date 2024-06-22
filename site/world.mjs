@@ -41,7 +41,7 @@ export default class World {
     }
 
     getMovableEntities() {
-        return this.entities.filter(({anchored}) => (!anchored))
+        return this.entities;
     }
 
     #createPlayer() {
@@ -50,29 +50,26 @@ export default class World {
             drawable: new ImageDrawable("assets/player.png"),
             controls: new Controls()
         })
-        player.drawable.load();
         return player;
     }
 
     #createTree(x, y) {
-        console.log('tree')
+        console.log(`tree: ${x},${y}`)
         const tree = new Entity({
             pos: new Position(300, 300),
             drawable: new ImageDrawable("assets/tree.png")
         });
         tree.pos.move(x, y);
-        tree.drawable.load()
         return tree;
     }
 
     #createStone(x, y) {
-        console.log('stone')
+        console.log(`stone: ${x}, ${y}`)
         const stone = new Entity({
             pos: new Position(200, 200),
             drawable: new ImageDrawable("assets/stone.png")
         });
         stone.pos.move(x, y)
-        stone.drawable.load()
         return stone;
     }
 }
