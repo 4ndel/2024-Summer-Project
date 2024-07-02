@@ -7,17 +7,24 @@ export default class ImageDrawable {
         this.imgSrc = src
     }
 
+    setImage(src){
+        this.imgSrc = src
+    }
+
     /**
      * Draw this component to the context
      * @param {} context 
      * @param {*} dimensions 
      */
-    draw(context, {x, y, width, height, angle}) {
+    draw(context, {x, y, width, height, angle}, transparency) {
+        transparency = transparency || 1
         if (!this.parent) return;
         const img = this.getImage();
         if (img) {
+            context.globalAlpha = transparency;
             // context.rotate(angle)
             context.drawImage(img, x, y, width, height);
+            context.globalAlpha = 1;
         }
     }
 

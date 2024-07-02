@@ -3,7 +3,7 @@ export default class Position {
     x = 0;
     y = 0;
     angle = 0;
-    speed = 5;
+    speed = 3;
     width;
     height;
 
@@ -43,8 +43,9 @@ export default class Position {
         const bottom = this.y + this.height;
         // if (RectA.Left < RectB.Right && RectA.Right > RectB.Left &&
         // RectA.Top > RectB.Bottom && RectA.Bottom < RectB.Top ) 
-        const withinHorizontal = this.x < x + width && right > x;
-        const withinVertical = this.y > y + height && bottom < y;
+        const withinHorizontal = this.x < x + width + screen.width/2 && right > x + screen.width/2;
+        const withinVertical = this.y < y + height + screen.height/2 && bottom > y + screen.height/2;
+        // console.log(withinHorizontal && withinVertical);
         return withinHorizontal && withinVertical
     }
 }

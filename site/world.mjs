@@ -12,6 +12,7 @@ const defaultConfiguration = {
 
 export default class World {
     player = this.#createPlayer()
+    buildingPreview = this.#showBuildingPreview("assets/wall.png", 180)
     entities = []
     width;
     height;
@@ -42,6 +43,25 @@ export default class World {
 
     getMovableEntities() {
         return this.entities;
+    }
+
+    changeBuilding(type){
+        this.buildingPreview = this.#showBuildingPreview(type, 180)
+    }
+
+    place(asset, size){
+        const building = new Entity({
+            pos: new Position(size, size),
+            drawable: new ImageDrawable(asset)
+        })
+    }
+
+    #showBuildingPreview(asset, size) {
+        const buildingPreview = new Entity({
+            pos: new Position(size, size),
+            drawable: new ImageDrawable(asset)
+        })
+        return buildingPreview;
     }
 
     #createPlayer() {

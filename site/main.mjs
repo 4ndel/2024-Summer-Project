@@ -1,7 +1,7 @@
 import GameEngine from "./game.mjs"
 
 const engine = new GameEngine()
-window.engine = engine
+window.game = engine
 
 async function start() {
     await engine.init()
