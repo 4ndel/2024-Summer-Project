@@ -63,10 +63,8 @@ export default class GameEngine {
             }
             const buildingPreview = builder.currentBuildItem
             if (buildingPreview) {
-                let { x, y } = controls.followMouse();
-                x -= 35
-                y -= 35
-                buildingPreview.pos.move(x - (x%70), y - (y%70))
+                let { x, y } = this.#snapToGrid(controls.followMouse());
+                buildingPreview.pos.move(x, y)
                 buildingPreview.drawable?.draw?.(this.context, buildingPreview.pos, 0.5)
             }
         }
@@ -74,13 +72,16 @@ export default class GameEngine {
 
     placeBuilding() {
         const { builder } = this.world
-        const { player: {controls} } = this.world
+        const { player } = this.world
+        const { controls } = player
         const buildEntity = builder.currentBuildItem
         if (builder.building && buildEntity && controls.leftClick) {
             const building = builder.place()
             const {x, y} = this.#toWorldCoordinates(controls.followMouse())
             building.pos.move(x, y)
-            this.world.place(building)
+            if (this.checkEntityCollision(building.pos).length == 0 && !player.pos.checkCollision(building.pos)) {
+                this.world.place(building)
+            }
         }
     }
 
@@ -120,7 +121,8 @@ export default class GameEngine {
     }
 
     #worldOrigin() {
-        return this.world.player.pos;
+        const pos = this.world.player.pos;
+        return { x: pos.x - pos.width / 2, y: pos.y - pos.height / 2}
     }
 
     /**
@@ -143,6 +145,11 @@ export default class GameEngine {
             x: pos.x + origin.x - center.x,
             y: pos.y + origin.y - center.y
         }
+    }
+
+    #snapToGrid(pos) {
+        // TODO adjust to grid
+        return pos
     }
 
     drawGrid(w, h) {
