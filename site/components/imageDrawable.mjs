@@ -16,8 +16,7 @@ export default class ImageDrawable {
      * @param {} context 
      * @param {*} dimensions 
      */
-    draw(context, {x, y, width, height, angle}, transparency) {
-        transparency = transparency || 1
+    draw(context, {x, y, width, height, angle}, transparency = 1) {
         if (!this.parent) return;
         const img = this.getImage();
         if (img) {

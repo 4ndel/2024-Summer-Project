@@ -1,5 +1,8 @@
 import World from "./world.mjs"
 
+/**
+ * I'm responsible for all the rules of the game. I bring everything together.
+ */
 export default class GameEngine {
     canvas;
     context;
@@ -38,27 +41,45 @@ export default class GameEngine {
 
         this.drawBackground()
         this.drawEntities()
-        this.buildPreview()
+        this.updateBuilding()
+        this.placeBuilding()
+        this.cleanup()
     }
 
-      // trying to change image of buildingPreview.
-     // then using key listening switch the images.
-    // then implement placing.
-    building(){
+    cleanup() {
         const { player } = this.world
-        player.controls.build();
-        this.world.changeBuilding(player.controls.buildingType)
+        player.controls.clearPresses()
     }
 
-    buildPreview(){
-        const { player } = this.world
-        const { buildingPreview } = this.world
-        var { x, y } = player.controls.followMouse();
-        x-=35
-        y-=35
-        buildingPreview.pos.move(x - (x%70), y - (y%70))
-        buildingPreview.drawable?.draw?.(this.context, buildingPreview.pos, 0.5)
-        this.building()
+    updateBuilding() {
+        const { player: {controls}, builder } = this.world
+        if (controls.isPressed('b')) {
+            builder.toggleBuilding()
+        }
+        if (builder.building) {
+            const buildName = controls.getBuildEntityName()
+            if (buildName) {
+                builder.selectBuildingEntity(buildName)
+            }
+            const buildingPreview = builder.currentBuildItem
+            if (buildingPreview) {
+                let { x, y } = controls.followMouse();
+                x -= 35
+                y -= 35
+                buildingPreview.pos.move(x - (x%70), y - (y%70))
+                buildingPreview.drawable?.draw?.(this.context, buildingPreview.pos, 0.5)
+            }
+        }
+    }
+
+    placeBuilding() {
+        const { builder } = this.world
+        const { player:{controls} } = this.world
+        const buildEntity = builder.currentBuildItem
+        if (builder.building && buildEntity && controls.leftClick) {
+            const building = builder.place()
+            this.world.place(building)
+        }
     }
 
     moveEntities() {
