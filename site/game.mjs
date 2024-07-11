@@ -48,7 +48,7 @@ export default class GameEngine {
 
     cleanup() {
         const { player } = this.world
-        player.controls.clearPresses()
+        player.controls.reset()
     }
 
     updateBuilding() {

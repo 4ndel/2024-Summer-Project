@@ -50,8 +50,9 @@ export default class Controls {
         return Array.of(this.#presses.values)
     }
 
-    clearPresses() {
+    reset() {
         this.#presses.clear()
+        this.leftClick = false;
     }
 
     listen() {
@@ -68,12 +69,8 @@ export default class Controls {
             this.mousePos = {x: e.clientX, y: e.clientY}
         });
 
-        window.addEventListener("mousedown", (e) => {
-            this.leftClick = true
-        });
-
         window.addEventListener("mouseup", (e) => {
-            this.leftClick = false
+            this.leftClick = true
         });
     }
 
