@@ -74,10 +74,12 @@ export default class GameEngine {
 
     placeBuilding() {
         const { builder } = this.world
-        const { player:{controls} } = this.world
+        const { player: {controls} } = this.world
         const buildEntity = builder.currentBuildItem
         if (builder.building && buildEntity && controls.leftClick) {
             const building = builder.place()
+            const {x, y} = this.#toWorldCoordinates(controls.followMouse())
+            building.pos.move(x, y)
             this.world.place(building)
         }
     }
@@ -102,10 +104,10 @@ export default class GameEngine {
 
     drawEntities() {
         const { player } = this.world
-        const center = { x: this.canvas.width / 2, y: this.canvas.height / 2}
+        const center = this.#screenCenter()
 
         for (const entity of this.world.entities) {
-            const screenPos = this.#toPlayerCoordinates(entity.pos, player, center)
+            const screenPos = this.#toScreenCoordinates(entity.pos, player.pos, center)
             entity?.drawable?.draw?.(this.context, screenPos)
         }
 
@@ -113,12 +115,34 @@ export default class GameEngine {
         player?.drawable?.draw?.(this.context, playerPos)
     }
 
-    #toPlayerCoordinates(pos, player, center) {
+    #screenCenter() {
+        return { x: this.canvas.width / 2, y: this.canvas.height / 2}
+    }
+
+    #worldOrigin() {
+        return this.world.player.pos;
+    }
+
+    /**
+     * Translates a position in world coordinates to screen coordinates
+     */
+    #toScreenCoordinates(pos, origin = this.#worldOrigin(), center = this.#screenCenter()) {
         return {
             ...pos,
-            x: pos.x - player.pos.x + center.x,
-            y: pos.y - player.pos.y + center.y
+            x: pos.x - origin.x + center.x,
+            y: pos.y - origin.y + center.y
         };
+    }
+
+    /**
+     * Translates a position in screen coordinates to world coordinates
+     */
+    #toWorldCoordinates(pos, origin = this.#worldOrigin(), center = this.#screenCenter()) {
+        return {
+            ...pos,
+            x: pos.x + origin.x - center.x,
+            y: pos.y + origin.y - center.y
+        }
     }
 
     drawGrid(w, h) {

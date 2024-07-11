@@ -283,7 +283,6 @@ export default class Builder {
             pos: new Position(size, size),
             drawable: new ImageDrawable(this.currentBuildItem.drawable.imgSrc)
         });
-        entity.pos.move(x, y)
         return entity
     }
 
