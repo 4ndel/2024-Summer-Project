@@ -102,16 +102,23 @@ export default class GameEngine {
 
     drawEntities() {
         const { player } = this.world
-        const center = {...player.pos, x: this.canvas.width / 2, y: this.canvas.height / 2}
+        const center = { x: this.canvas.width / 2, y: this.canvas.height / 2}
 
         for (const entity of this.world.entities) {
-            const x = entity.pos.x - player.pos.x;
-            const y = entity.pos.y - player.pos.y;
-            const pos = {...entity.pos, x, y}
-            entity?.drawable?.draw?.(this.context, pos)
+            const screenPos = this.#toPlayerCoordinates(entity.pos, player, center)
+            entity?.drawable?.draw?.(this.context, screenPos)
         }
 
-        player?.drawable?.draw?.(this.context, center)
+        const playerPos = {...player.pos, ...center}
+        player?.drawable?.draw?.(this.context, playerPos)
+    }
+
+    #toPlayerCoordinates(pos, player, center) {
+        return {
+            ...pos,
+            x: pos.x - player.pos.x + center.x,
+            y: pos.y - player.pos.y + center.y
+        };
     }
 
     drawGrid(w, h) {
