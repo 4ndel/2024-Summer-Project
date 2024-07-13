@@ -112,8 +112,18 @@ export default class GameEngine {
             entity?.drawable?.draw?.(this.context, screenPos)
         }
 
-        const playerPos = {...player.pos, ...center}
-        player?.drawable?.draw?.(this.context, playerPos)
+        this.#drawPlayer()
+        
+    }
+
+    #drawPlayer() {
+        const player = this.world.player
+        const {x, y, width, height} = player.pos
+        const angle = player.controls.getMovement().angle
+        const center = this.#screenCenter()
+        const playerPos = {...player.pos, ...center, angle }
+
+        player?.drawable?.drawScreen?.(this.context, playerPos);
     }
 
     #screenCenter() {

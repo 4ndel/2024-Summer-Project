@@ -11,8 +11,6 @@ const DEFAULT_BUILD_ITEM = 'wall';
 export default class Builder {
     building = false;
     currentBuildItem;
-    baseLocation;
-    baseBuilt = false;
 
     toggleBuilding() {
         this.setBuilding(!this.building)
