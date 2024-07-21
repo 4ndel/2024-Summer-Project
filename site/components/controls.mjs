@@ -18,6 +18,9 @@ const BUILDING_KEY_NAME_MAP = new Map([
 export default class Controls {
     keys = new Set()
     #presses = new Set()
+    /**
+     * @param {Pos}
+     */
     mousePos = {x: 0, y: 0}
     leftClick = false
 
@@ -74,6 +77,9 @@ export default class Controls {
         });
     }
 
+    /**
+     * @returns {Pos}
+     */
     followMouse(){
         return this.mousePos;
     }
@@ -109,9 +115,8 @@ export default class Controls {
     #calculateAngle() {
         const {x, y} = this.mousePos
         const mouseX = x - screen.width/2
-        const mouseY = y - screen.height/2
-        const mouseAngle = Math.atan(mouseY / mouseX)
-        // console.log(mouseX + " " + mouseY + " " + mouseAngle * (180/Math.PI))
+        const mouseY = y - screen.height/2 + 50
+        const mouseAngle = Math.atan2(mouseY, mouseX) - (Math.PI/2)
         return mouseAngle
     }
 }

@@ -1,31 +1,36 @@
 import World from "./world.mjs"
+import { isDebug } from "./constants.mjs";
+import BackgroundDrawable from "./components/backgroundDrawable.mjs";
+import {snap, getOrigin, getCenter} from "./components/position.mjs"
+import DebugDrawable from "./components/debugDrawable.mjs";
+import Viewport from "./viewport.mjs";
 
 /**
  * I'm responsible for all the rules of the game. I bring everything together.
  */
 export default class GameEngine {
-    canvas;
-    context;
+    /**
+     * @prop {Viewport}
+     */
+    viewport;
+    debugDrawable;
     isBuilding;
+    background
     world = new World()
 
     async init() {
-        const body = document.body
-        const canvas = this.canvas = document.getElementById("canvas");
-        canvas.width = body.clientWidth
-        canvas.height = body.clientHeight
-
-        this.context = canvas.getContext("2d");
-
         const { player } = this.world
         const { buildingPreview } = this.world
         this.world.generateWorld();
+        this.background = new BackgroundDrawable(this.world)
 
         await player?.drawable?.load()
         await buildingPreview?.drawable?.load()
         for (const entity of this.world.entities) {
             const promise  = entity?.drawable?.load()
         }
+        const viewport = this.viewport = new Viewport(this.world);
+        this.debugDrawable = new DebugDrawable(viewport, player.controls, this.world);
         player.controls.listen();
     }
 
@@ -38,17 +43,47 @@ export default class GameEngine {
 
     draw() {
         this.moveEntities()
-
-        this.drawBackground()
+        this.#drawBackground()
         this.drawEntities()
+        this.updateTime()
+        this.spawn()
         this.updateBuilding()
         this.placeBuilding()
+        this.debugDrawable.draw()
         this.cleanup()
     }
 
     cleanup() {
         const { player } = this.world
         player.controls.reset()
+    }
+
+    spawn(){
+        const { dayNightCycle } = this.world
+        const { zombie } = this.world
+        const { player } = this.world
+        const zombieAmount = ((dayNightCycle.getWaves() * 10) % 100) + 10
+        if(dayNightCycle.getTime() === 3750){
+            for(let i = 0; i < zombieAmount; i++){
+                this.world.place(zombie.createZombie(player.pos))
+            }
+        }
+    }
+
+    #drawBackground() {
+        const {player} = this.world
+        const pos = {
+            x: player.pos.x,
+            y: player.pos.y,
+            ...this.viewport.getDims()
+        }
+        this.background.draw(this.viewport)
+    }
+
+    updateTime(){
+        const { dayNightCycle } = this.world
+        dayNightCycle.update()
+        dayNightCycle.draw(this.viewport, {x: 50, y:screen.height * 0.8})
     }
 
     updateBuilding() {
@@ -63,11 +98,28 @@ export default class GameEngine {
             }
             const buildingPreview = builder.currentBuildItem
             if (buildingPreview) {
-                let { x, y } = this.#snapToGrid(controls.followMouse());
-                buildingPreview.pos.move(x, y)
-                buildingPreview.drawable?.draw?.(this.context, buildingPreview.pos, 0.5)
+                this.#drawBuildingPreview(buildingPreview)
             }
         }
+    }
+
+    #drawBuildingPreview(buildingPreview) {
+        const pos = this.#getSnappedBuilding(buildingPreview)
+        
+        this.viewport.context.globalAlpha = 0.5;
+        buildingPreview.drawable?.draw?.(this.viewport);
+    }
+
+    /**
+     * @param {*} buildingPreview 
+     * @returns {import("./components/position.mjs").Pos} the snapped world coordinates for the building
+     */
+    #getSnappedBuilding(buildingPreview) {
+        const player = this.world.player
+        const controls = player.controls
+        const mousePos = this.viewport.toWorldCoordinates(controls.followMouse())
+        const buildingOrigin = getOrigin(mousePos, buildingPreview.pos)
+        return snap(buildingOrigin);
     }
 
     placeBuilding() {
@@ -75,11 +127,11 @@ export default class GameEngine {
         const { player } = this.world
         const { controls } = player
         const buildEntity = builder.currentBuildItem
-        if (builder.building && buildEntity && controls.leftClick) {
+        if (builder.building && buildEntity && controls.leftClick) { 
             const building = builder.place()
-            const {x, y} = this.#toWorldCoordinates(controls.followMouse())
-            building.pos.move(x, y)
-            if (this.checkEntityCollision(building.pos).length == 0 && !player.pos.checkCollision(building.pos)) {
+            const pos = this.#getSnappedBuilding(building)
+            building.pos.move(pos.x, pos.y)
+            if (this.checkEntityCollision(building.pos).length === 0 && !player.pos.checkCollision(building.pos)) {
                 this.world.place(building)
             }
         }
@@ -93,10 +145,14 @@ export default class GameEngine {
         const xdiff = movement.xdiff * speed;
         const ydiff = movement.ydiff * speed;
         const nextPos = player.pos.newPos(xdiff, ydiff);
-
         const collided = this.checkEntityCollision(nextPos)
-
-        if (collided.length <= 0) player.pos.move(nextPos.x, nextPos.y)
+        if(collided.length <= 0) {
+            player.pos.move(nextPos.x, nextPos.y)
+        } else {
+            const noNoDirection = collided[0].pos.findNoNoDirection(nextPos)
+            if(noNoDirection === "horizontal") player.pos.move(player.pos.x, nextPos.y)
+            else player.pos.move(nextPos.x, player.pos.y)
+        }
     }
 
     checkEntityCollision(pos) {
@@ -105,11 +161,11 @@ export default class GameEngine {
 
     drawEntities() {
         const { player } = this.world
-        const center = this.#screenCenter()
+        const center = this.viewport.getCenter()
 
         for (const entity of this.world.entities) {
-            const screenPos = this.#toScreenCoordinates(entity.pos, player.pos, center)
-            entity?.drawable?.draw?.(this.context, screenPos)
+            const screenPos = this.viewport.toScreenCoordinates(entity.pos)
+            entity?.drawable?.draw?.(this.viewport)
         }
 
         this.#drawPlayer()
@@ -118,79 +174,12 @@ export default class GameEngine {
 
     #drawPlayer() {
         const player = this.world.player
-        const {x, y, width, height} = player.pos
-        const angle = player.controls.getMovement().angle
-        const center = this.#screenCenter()
-        const playerPos = {...player.pos, ...center, angle }
+        player.pos.angle = player.controls.getMovement().angle
+        const {width, height} = player.pos
+        const center = this.viewport.getCenter()
+        const pos = getOrigin({width, height, ...center})
 
-        player?.drawable?.drawScreen?.(this.context, playerPos);
-    }
-
-    #screenCenter() {
-        return { x: this.canvas.width / 2, y: this.canvas.height / 2}
-    }
-
-    #worldOrigin() {
-        const pos = this.world.player.pos;
-        return { x: pos.x - pos.width / 2, y: pos.y - pos.height / 2}
-    }
-
-    /**
-     * Translates a position in world coordinates to screen coordinates
-     */
-    #toScreenCoordinates(pos, origin = this.#worldOrigin(), center = this.#screenCenter()) {
-        return {
-            ...pos,
-            x: pos.x - origin.x + center.x,
-            y: pos.y - origin.y + center.y
-        };
-    }
-
-    /**
-     * Translates a position in screen coordinates to world coordinates
-     */
-    #toWorldCoordinates(pos, origin = this.#worldOrigin(), center = this.#screenCenter()) {
-        return {
-            ...pos,
-            x: pos.x + origin.x - center.x,
-            y: pos.y + origin.y - center.y
-        }
-    }
-
-    #snapToGrid(pos) {
-        // TODO adjust to grid
-        return pos
-    }
-
-    drawGrid(w, h) {
-        this.context.lineWidth = 5;
-        this.context.strokeStyle = "#5e8138";
-        for(let i = 0; i<h/70; i++){
-            this.context.beginPath();
-            this.context.moveTo(0, i*70);
-            this.context.lineTo(w, i*70);
-            this.context.stroke();
-        }
-        for(let i = 0; i<w/70; i++){
-            this.context.beginPath();
-            this.context.moveTo(i*70, 0);
-            this.context.lineTo(i*70, h);
-            this.context.stroke();
-        }
-    }
-
-    drawBackground() {
-        const {player} = this.world
-        const ctx = this.context
-        const w = this.canvas.width
-        const h = this.canvas.height
-        ctx.save()
-        ctx.translate((player.pos.x % 70) * -1 - 100, (player.pos.y % 70) * -1 - 100)
-        ctx.fillStyle = "#688d41";
-        ctx.clearRect(-200, -200, w+600, h+600);
-        ctx.fillRect(-100, -100, w+500, h+500);
-        this.drawGrid(w*100, h*100);
-        ctx.restore()
+        player?.drawable?.drawScreen?.(this.viewport, pos);
     }
 }
 

@@ -2,6 +2,7 @@ import Entity from "./entity.mjs";
 import Controls from "./components/controls.mjs";
 import ImageDrawable from "./components/imageDrawable.mjs";
 import Position from "./components/position.mjs";
+import { GRID_SIZE } from "./constants.mjs";
 
 const DEFAULT_BUILD_ITEM = 'wall';
 
@@ -31,7 +32,7 @@ export default class Builder {
 
     createPlayer() {
         const player = new Entity({
-            pos: new Position(170, 150),
+            pos: new Position(113, 100),
             drawable: new ImageDrawable("assets/player.png"),
             controls: new Controls()
         })
@@ -52,7 +53,7 @@ export default class Builder {
             pos: new Position(200, 200),
             drawable: new ImageDrawable("assets/stone.png")
         });
-        stone.pos.move(x, y)
+        stone.pos.move(x, y) 
         return stone;
     }
 
@@ -64,7 +65,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 120;
+            const size = GRID_SIZE;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/wall.png')
@@ -72,7 +73,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createDoor() {
@@ -83,7 +84,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 120;
+            const size = GRID_SIZE;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/door.png')
@@ -91,7 +92,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createSlowTrap(){
@@ -102,7 +103,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 120;
+            const size = GRID_SIZE;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/slow-trap.png')
@@ -110,7 +111,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createArrowTower(){
@@ -121,7 +122,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/arrow-tower.png')
@@ -129,7 +130,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createCannonTower(){
@@ -140,7 +141,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/cannon-tower.png')
@@ -148,7 +149,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createMeleeTower(){
@@ -159,7 +160,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/melee-tower.png')
@@ -167,7 +168,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createBombTower(){
@@ -178,7 +179,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/bomb-tower.png')
@@ -186,7 +187,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createMageTower(){
@@ -197,7 +198,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/mage-tower.png')
@@ -205,7 +206,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createHarvester(){
@@ -216,7 +217,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/harvester.png')
@@ -224,7 +225,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createGoldMine(){
@@ -235,7 +236,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/gold-mine.png')
@@ -243,7 +244,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     createGoldStash(){
@@ -254,7 +255,7 @@ export default class Builder {
             y = this.currentBuildItem.pos.y
         }
         if(!this.baseBuilt){
-            const size = 180;
+            const size = GRID_SIZE * 2;
             const entity = new Entity({
                 pos: new Position(size, size),
                 drawable: new ImageDrawable('assets/gold-stash.png')
@@ -262,7 +263,7 @@ export default class Builder {
             entity.pos.move(x, y)
             return entity
         }
-        return null
+        return this.currentBuildItem
     }
 
     place(){

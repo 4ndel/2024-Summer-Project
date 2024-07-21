@@ -1,4 +1,6 @@
 import Builder from "./builder.mjs";
+import dayNightCycle from "./components/dayNightCycle.mjs";
+import Zombie from "./zombie.mjs";
 
 const defaultConfiguration = {
     width: 20000,
@@ -10,6 +12,8 @@ const defaultConfiguration = {
 export default class World {
     builder = new Builder()
     player = this.builder.createPlayer()
+    zombie = new Zombie()
+    dayNightCycle = new dayNightCycle()
     entities = []
     width;
     height;
