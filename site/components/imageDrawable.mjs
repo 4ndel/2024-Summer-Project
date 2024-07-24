@@ -25,15 +25,16 @@ export default class ImageDrawable {
         if (!this.parent?.pos) return;
         const {context} = viewport;
         const {width, height, angle} = this.parent.pos
-        this.#drawScreen(context, x, y, width, height, 0)
+        this.#drawScreen(context, x, y, width, height, angle)
     }
 
     #drawScreen(context, x, y, width, height, angle) {
         const img = this.getImage();
         const debug = isDebug()
         const center = getCenter({width, height})
-        // context.translate(center.x, center.y)
-        // context.rotate(angle)
+        context.translate(center.x + width / 2, center.y + height / 2)
+        context.rotate(angle)
+        context.translate(-(center.x + width / 2), -(center.y + height / 2))
         if (debug) {
             context.fillStyle = "#000"
             context.fillRect(x, y, width, height)

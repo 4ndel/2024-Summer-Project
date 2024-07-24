@@ -36,6 +36,7 @@ export default class Builder {
             drawable: new ImageDrawable("assets/player.png"),
             controls: new Controls()
         })
+        player.pos.move(Math.floor(Math.random()*20000) + 2, Math.floor(Math.random()*10000) + 2)
         return player;
     }
 

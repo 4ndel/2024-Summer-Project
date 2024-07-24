@@ -65,7 +65,7 @@ export default class GameEngine {
         const zombieAmount = ((dayNightCycle.getWaves() * 10) % 100) + 10
         if(dayNightCycle.getTime() === 3750){
             for(let i = 0; i < zombieAmount; i++){
-                this.world.place(zombie.createZombie(player.pos))
+                this.world.place(zombie.createZombie(player.pos, {x: Math.floor(Math.random()*500) - 250 + player.pos.x, y: Math.floor(Math.random()*500) - 250 + player.pos.y}))
             }
         }
     }
@@ -146,13 +146,26 @@ export default class GameEngine {
         const ydiff = movement.ydiff * speed;
         const nextPos = player.pos.newPos(xdiff, ydiff);
         const collided = this.checkEntityCollision(nextPos)
-        if(collided.length <= 0) {
+        if(collided.length <= 0 && this.#isWithinWorld(nextPos)) {
             player.pos.move(nextPos.x, nextPos.y)
         } else {
-            const noNoDirection = collided[0].pos.findNoNoDirection(nextPos)
-            if(noNoDirection === "horizontal") player.pos.move(player.pos.x, nextPos.y)
-            else player.pos.move(nextPos.x, player.pos.y)
+            if(!collided.length <= 0){
+                const noNoDirection = collided[0].pos.findNoNoDirection(nextPos)
+                if(noNoDirection === "horizontal") player.pos.move(player.pos.x, nextPos.y)
+                else player.pos.move(nextPos.x, player.pos.y)
+            }
         }
+    }
+
+    /**
+     * 
+     * @param {import("./components/position.mjs").Region} region 
+     */
+    #isWithinWorld({x, y, width, height}) {
+        const world = this.world
+        const withinHorizontal = x >= 0 && x + width <= world.width
+        const withinVertical = y >= 0 && y + height <= world.height
+        return withinHorizontal && withinVertical
     }
 
     checkEntityCollision(pos) {
