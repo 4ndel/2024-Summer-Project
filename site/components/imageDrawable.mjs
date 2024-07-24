@@ -32,9 +32,9 @@ export default class ImageDrawable {
         const img = this.getImage();
         const debug = isDebug()
         const center = getCenter({width, height})
-        context.translate(center.x + width / 2, center.y + height / 2)
-        context.rotate(angle)
-        context.translate(-(center.x + width / 2), -(center.y + height / 2))
+        //context.translate(center.x + width / 2, center.y + height / 2)
+        //context.rotate(angle)
+        //context.translate(-(center.x + width / 2), -(center.y + height / 2))
         if (debug) {
             context.fillStyle = "#000"
             context.fillRect(x, y, width, height)
